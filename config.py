@@ -19,6 +19,7 @@ UPSTREAM_REPO = getenv("UPSTREAM_REPO", "https://github.com/khushbuxabhi/video-s
 UPSTREAM_BRANCH = getenv("UPSTREM_BRANCH", "main")
 DURATION_LIMIT = int(getenv("DURATION_LIMIT", "900"))
 GROUP_SUPPORT = getenv("GROUP_SUPPORT", "AlishaSupport")
+SUPPORT_GROUP = getenv("SUPPORT_GROUP", "Terayaarhoomai")
 UPDATES_CHANNEL = getenv("UPDATES_CHANNEL", "Pubglovers_Shayri_lovers")
 
 # database, decorators, handlers mandatory vars
