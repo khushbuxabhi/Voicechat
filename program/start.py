@@ -31,20 +31,18 @@ from config import (
     OWNER_USERNAME,
     UPDATES_CHANNEL,
 )
-
-from program import __version__, LOGS
-from pytgcalls import (__version__ as pytover)
-
-from driver.filters import command
-from driver.core import bot, me_bot, me_user
-from driver.database.dbusers import add_served_user
-from driver.database.dbchat import add_served_chat, is_served_chat
-from driver.database.dblockchat import blacklisted_chats
-from driver.database.dbpunish import is_gbanned_user
 from driver.decorators import check_blacklist
+from program import __version__, LOGS
+from driver.core import bot, me_bot, me_user
+from driver.filters import command
+from driver.database.dbchat import add_served_chat, is_served_chat
+from driver.database.dbpunish import is_gbanned_user
+from driver.database.dbusers import add_served_user, is_served_user
+from driver.database.dblockchat import blacklisted_chats
 
 from pyrogram import Client, filters, __version__ as pyrover
 from pyrogram.errors import FloodWait, ChatAdminRequired
+from pytgcalls import (__version__ as pytover)
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, ChatJoinRequest
 
 __major__ = 0
@@ -82,29 +80,44 @@ async def _human_time_duration(seconds):
 @check_blacklist()
 async def start_(c: Client, message: Message):
     user_id = message.from_user.id
-    await add_served_user(user_id)
+    if await is_served_user(user_id):
+        pass
+    else:
+        await add_served_user(user_id)
+        return
     await message.reply_text(
-        f"""Hi {message.from_user.mention()} 👋🏻\n
-💭 [{me_bot.first_name}](https://t.me/{me_bot.username}) is a bot to play music and video in groups, through the new Telegram video chats.
+        f"""**━━━━━━━━━━━━━━━━━━
+🖤 ʜᴇʏ {message.from_user.mention()} !
 
-🕵🏻 Check out all the **Bot's commands** and how they work by clicking on the » 📚 **Commands** button!
+         ɪ ᴀᴍ sᴜᴘᴇʀ ғᴀsᴛ ᴠᴄ ᴘʟᴀʏᴇʀ ʙᴏᴛ ғᴏʀ ᴛᴇʟᴇɢʀᴀᴍ ɢʀᴏᴜᴘs...
+ᴀʟʟ ᴏꜰ ᴍʏ ᴄᴏᴍᴍᴀɴᴅs ᴄᴀɴ ʙᴇ ᴜsᴇᴅ ᴡɪᴛʜ : /
+┏━━━━━━━━━━━━━━┓
+┣★
+┣★ ᴄʀᴇᴀᴛᴏʀ: [🖤 ᴀʙʜɪᴍᴀɴʏᴜ 🖤](t.me/Itz_VeNom_xD)
+┣★
+┗━━━━━━━━━━━━━━┛
 
-🧑🏻‍💻 To know how to use this bot, please click on the » ❓ **Basic Guide** button!
-""",
+💞 ɪғ ʏᴏᴜ ʜᴀᴠᴇ ᴀɴʏ ǫᴜᴇsᴛɪᴏɴs ᴛʜᴇɴ ᴅᴍ ᴛᴏ ᴍʏ [ᴏᴡɴᴇʀ](t.me/Itz_VeNom_xD) ʙᴀʙʏ...
+━━━━━━━━━━━━━━━━━━**""",
         reply_markup=InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton("➕ Add me to a Group ➕", url=f"https://t.me/{me_bot.username}?startgroup=true")
-                ],[
-                    InlineKeyboardButton("❓ Basic Guide", callback_data="user_guide")
-                ],[
-                    InlineKeyboardButton("📚 Commands", callback_data="command_list"),
-                    InlineKeyboardButton("❤️ Donate", url=f"https://t.me/{OWNER_USERNAME}")
-                ],[
-                    InlineKeyboardButton("👥 Support Group", url=f"https://t.me/{GROUP_SUPPORT}"),
-                    InlineKeyboardButton("📣 Support Channel", url=f"https://t.me/{UPDATES_CHANNEL}")
-                ],[
-                    InlineKeyboardButton("🌐 Source Code", url="https://github.com/levina-lab/video-stream")
+                    InlineKeyboardButton(
+                        "🖤   ᴋɪᴅɴᴀᴘ ᴍᴇ   🖤",
+                        url=f"https://t.me/{BOT_USERNAME}?startgroup=true",
+                    )
+                ],
+                [
+                    InlineKeyboardButton("🦋 ʜᴇʟᴘ ", callback_data="command_list"),
+                    InlineKeyboardButton("ᴏᴡɴᴇʀ 🦋", url=f"https://t.me/Itz_VeNom_xD"),
+                ],
+                [
+                    InlineKeyboardButton(
+                        "🖤 ᴏꜰꜰɪᴄɪᴀʟ ɢʀᴏᴜᴘ", url=f"https://t.me/{GROUP_SUPPORT}"
+                    ),
+                    InlineKeyboardButton(
+                        "ᴏꜰꜰɪᴄɪᴀʟ ᴄʜᴀɴɴᴇʟ 🖤", url=f"https://t.me/{UPDATES_CHANNEL}"
+                    ),
                 ],
             ]
         ),
@@ -121,22 +134,25 @@ async def alive(c: Client, message: Message):
     current_time = datetime.utcnow()
     uptime_sec = (current_time - START_TIME).total_seconds()
     uptime = await _human_time_duration(int(uptime_sec))
-    buttons = InlineKeyboardMarkup(
+    
+    keyboard = InlineKeyboardMarkup(
         [
             [
-                InlineKeyboardButton("✨ Group", url=f"https://t.me/{GROUP_SUPPORT}"),
+                InlineKeyboardButton("✨ ꜱᴜᴘᴘᴏʀᴛ", url=f"https://t.me/{GROUP_SUPPORT}"),
                 InlineKeyboardButton(
-                    "📣 Channel", url=f"https://t.me/{UPDATES_CHANNEL}"
+                    "📣 ᴜᴘᴅᴀᴛᴇꜱ", url=f"https://t.me/{UPDATES_CHANNEL}"
                 ),
             ]
         ]
     )
-    text = f"**Hello {message.from_user.mention()}, I'm {me_bot.first_name}**\n\n🧑🏼‍💻 My Master: [{ALIVE_NAME}](https://t.me/{OWNER_USERNAME})\n👾 Bot Version: `v{__version__}`\n🔥 Pyrogram Version: `{pyrover}`\n🐍 Python Version: `{__python_version__}`\n✨ PyTgCalls Version: `{pytover.__version__}`\n🆙 Uptime Status: `{uptime}`\n\n❤ **Thanks for Adding me here, for playing video & music on your Group's video chat**"
+
+    alive = f"**ʜᴇʟʟᴏ {message.from_user.mention()}, ɪ'ᴍ {me_bot.first_name}**\n\n🧑🏼‍💻 ᴍʏ ᴍᴀꜱᴛᴇʀ: [{ALIVE_NAME}](https://t.me/{OWNER_USERNAME})\n👾 ʙᴏᴛ ᴠᴇʀꜱɪᴏɴ: `v{__version__}`\n🔥 ᴘʏʀᴏɢʀᴀᴍ ᴠᴇʀꜱɪᴏɴ: `{pyrover}`\n🐍 ᴘʏᴛʜᴏɴ ᴠᴇʀꜱɪᴏɴ: `{__python_version__}`\n✨ ᴘʏᴛɢᴄᴀʟʟꜱ ᴠᴇʀꜱɪᴏɴ: `{pytover.__version__}`\n🆙 ᴜᴘᴛɪᴍᴇ: `{uptime}`\n\n❤ **ᴛʜᴀɴᴋꜱ ꜰᴏʀ ᴀᴅᴅɪɴɢ ᴍᴇ ʜᴇʀᴇ, ꜰᴏʀ ᴘʟᴀʏɪɴɢ ᴠɪᴅᴇᴏ ɴᴅ ᴍᴜꜱɪᴄ ᴏɴ ᴜʀ ɢʀᴘ's ᴠᴏɪᴄᴇ ᴄʜᴀᴛ**"
+
     await c.send_photo(
         chat_id,
         photo=f"{ALIVE_IMG}",
-        caption=text,
-        reply_markup=buttons,
+        caption=alive,
+        reply_markup=keyboard,
     )
 
 
@@ -146,7 +162,7 @@ async def ping_pong(c: Client, message: Message):
     start = time()
     m_reply = await message.reply_text("pinging...")
     delta_ping = time() - start
-    await m_reply.edit_text("🏓 PONG !\n" f"⏱ `{delta_ping * 1000:.3f} ms`")
+    await m_reply.edit_text("🌸 `ᴘᴏɴɢ!!`\n" f"⚡️ `{delta_ping * 1000:.3f} ms`")
 
 
 @Client.on_message(command(["uptime", f"uptime@{BOT_USERNAME}"]) & ~filters.edited)
@@ -156,8 +172,9 @@ async def get_uptime(c: Client, message: Message):
     uptime_sec = (current_time - START_TIME).total_seconds()
     uptime = await _human_time_duration(int(uptime_sec))
     await message.reply_text(
-        f"• Uptime: `{uptime}`\n"
-        f"• Start Time: `{START_TIME_ISO}`"
+        "🤖 bot status:\n"
+        f"• **uptime:** `{uptime}`\n"
+        f"• **start time:** `{START_TIME_ISO}`"
     )
 
 
@@ -189,22 +206,22 @@ async def new_chat(c: Client, m: Message):
                     return await bot.leave_chat(chat_id)
             if member.id == me_bot.id:
                 return await m.reply(
-                    "❤️ Thanks for adding me to the **Group** !\n\n"
-                    "Appoint me as administrator in the **Group**, otherwise I will not be able to work properly, and don't forget to type `/userbotjoin` for invite the assistant.\n\n"
-                    "Once done, then type `/reload`",
+                    "❤️ ᴛʜᴀɴᴋꜱ ꜰᴏʀ ᴀᴅᴅɪɴɢ ᴍᴇ ᴛᴏ ᴛʜᴇ  **ɢʀᴏᴜᴘ** !\n\n"
+                    "Aᴘᴘᴏɪɴᴛ ᴍᴇ ᴀꜱ ᴀᴅᴍɪɴ ɪɴ ᴛʜᴇ **ɢʀᴏᴜᴘ**, ᴏᴛʜᴇʀᴡɪꜱᴇ ɪ ᴡɪʟʟ ɴᴏᴛ ʙᴇ ᴀʙʟᴇ ᴛᴏ ᴡᴏʀᴋ ᴘʀᴏᴘᴇʀʟʏ, ᴀɴᴅ ᴅᴏɴ'ᴛ ꜰᴏʀɢᴇᴛ ᴛᴏ ᴛʏᴘᴇ `/userbotjoin` ꜰᴏʀ ɪɴᴠɪᴛᴇ ᴛʜᴇ ᴀꜱꜱɪꜱᴛᴀɴᴛ.\n\n"
+                    "Oɴᴄᴇ ᴅᴏɴᴇ, ᴛʜᴇɴ ᴛʏᴘᴇ `/reload`",
                     reply_markup=InlineKeyboardMarkup(
                         [
                             [
-                                InlineKeyboardButton("📣 Channel", url=f"https://t.me/{UPDATES_CHANNEL}"),
-                                InlineKeyboardButton("💭 Support", url=f"https://t.me/{GROUP_SUPPORT}")
+                                InlineKeyboardButton("🖤 ꜱᴜᴘᴘᴏʀᴛ", url=f"https://t.me/{UPDATES_CHANNEL}"),
+                                InlineKeyboardButton("ᴜᴘᴅᴀᴛᴇꜱ 🖤", url=f"https://t.me/{GROUP_SUPPORT}")
                             ],[
-                                InlineKeyboardButton("👤 Assistant", url=f"https://t.me/{me_user.username}")
+                                InlineKeyboardButton("🖤 ᴀꜱꜱɪꜱᴛᴀɴᴛ 🖤", url=f"https://t.me/{me_user.username}")
                             ]
                         ]
                     )
                 )
             return
-        except Exception:
+        except BaseException:
             return
 
 
