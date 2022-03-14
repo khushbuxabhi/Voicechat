@@ -1,10 +1,37 @@
+"""
+Video + Music Stream Telegram Bot
+Copyright (c) 2022-present levina=lab <https://github.com/levina-lab>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but without any warranty; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/licenses.html>
+"""
+
+
 import asyncio
-from time import time
+
 from datetime import datetime
-from driver.filters import command
-from config import BOT_NAME as bn, BOT_USERNAME, SUPPORT_GROUP, OWNER_USERNAME
-from pyrogram import Client, filters
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from sys import version_info
+from time import time
+
+from config import (
+    ALIVE_IMG,
+    ALIVE_NAME,
+    BOT_USERNAME,
+    GROUP_SUPPORT,
+    OWNER_USERNAME,
+    UPDATES_CHANNEL,
+)
+
 from program import __version__, LOGS
 from pytgcalls import (__version__ as pytover)
 
@@ -49,44 +76,39 @@ async def _human_time_duration(seconds):
     return ", ".join(parts)
 
 
-@Client.on_message(command("start") & filters.private & ~filters.group & ~filters.edited)
-async def start_(client: Client, message: Message):
-    await message.reply_sticker("CAACAgUAAx0CZIiVngACSppiDZZGd6IPFA0TnEuOM3EqFbRxVQACCQMAArU72FSskU3O5FiqcyME")
-    await message.reply_photo(
-        photo=f"https://telegra.ph/file/053f99956ccee8416b8f7.jpg",
-        caption=f"""**━━━━━━━━━━━━━━━━━━
-🖤 ʜᴇʏ {message.from_user.mention()} !
+@Client.on_message(
+    command(["start", f"start@{BOT_USERNAME}"]) & filters.private & ~filters.edited
+)
+@check_blacklist()
+async def start_(c: Client, message: Message):
+    user_id = message.from_user.id
+    await add_served_user(user_id)
+    await message.reply_text(
+        f"""Hi {message.from_user.mention()} 👋🏻\n
+💭 [{me_bot.first_name}](https://t.me/{me_bot.username}) is a bot to play music and video in groups, through the new Telegram video chats.
 
-         ɪ ᴀᴍ [{bn}](t.me/{BOT_USERNAME}) sᴜᴘᴇʀ ғᴀsᴛ ᴠᴄ ᴘʟᴀʏᴇʀ ʙᴏᴛ ғᴏʀ ᴛᴇʟᴇɢʀᴀᴍ ɢʀᴏᴜᴘs...
-ᴀʟʟ ᴏꜰ ᴍʏ ᴄᴏᴍᴍᴀɴᴅs ᴄᴀɴ ʙᴇ ᴜsᴇᴅ ᴡɪᴛʜ : /
-┏━━━━━━━━━━━━━━┓
-┣★
-┣★ ᴄʀᴇᴀᴛᴏʀ: [𝝙𝗡𝗢𝗡𝗬𝗠𝗢𝗨𝗦](t.me/{OWNER_USERNAME})
-┣★
-┗━━━━━━━━━━━━━━┛
+🕵🏻 Check out all the **Bot's commands** and how they work by clicking on the » 📚 **Commands** button!
 
-💞 ɪғ ʏᴏᴜ ʜᴀᴠᴇ ᴀɴʏ ǫᴜᴇsᴛɪᴏɴs ᴛʜᴇɴ ᴅᴍ ᴛᴏ ᴍʏ [ᴏᴡɴᴇʀ](t.me/{OWNER_USERNAME}) ʙᴀʙʏ...
-━━━━━━━━━━━━━━━━━━**""",
-    reply_markup=InlineKeyboardMarkup(
+🧑🏻‍💻 To know how to use this bot, please click on the » ❓ **Basic Guide** button!
+""",
+        reply_markup=InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton(
-                        "✗ ᴀᴅᴅ ᴍᴇ ᴇʟsᴇ ʏᴏᴜ ɢᴇʏ​ ✗", url="https://t.me/{}?startgroup=true".format(BOT_USERNAME)
-                       ),
-                  ],[
-                    InlineKeyboardButton(
-                        "✗ ᴅᴇᴠᴇʟᴏᴘᴇʀ ✗", url="https://t.me/{}".format(OWNER_USERNAME)
-                    ),
-                    InlineKeyboardButton(
-                        "✗ sᴜᴘᴘᴏʀᴛ ✗", url="https://t.me/{}".format(SUPPORT_GROUP)
-                    )
-                ],[ 
-                    InlineKeyboardButton(
-                        "✗ sᴏᴜʀᴄᴇ ᴄᴏᴅᴇ​ ✗", url="https://t.me/DevilsHeavenMF"
-                    )]
+                    InlineKeyboardButton("➕ Add me to a Group ➕", url=f"https://t.me/{me_bot.username}?startgroup=true")
+                ],[
+                    InlineKeyboardButton("❓ Basic Guide", callback_data="user_guide")
+                ],[
+                    InlineKeyboardButton("📚 Commands", callback_data="command_list"),
+                    InlineKeyboardButton("❤️ Donate", url=f"https://t.me/{OWNER_USERNAME}")
+                ],[
+                    InlineKeyboardButton("👥 Support Group", url=f"https://t.me/{GROUP_SUPPORT}"),
+                    InlineKeyboardButton("📣 Support Channel", url=f"https://t.me/{UPDATES_CHANNEL}")
+                ],[
+                    InlineKeyboardButton("🌐 Source Code", url="https://github.com/levina-lab/video-stream")
+                ],
             ]
-       ),
-       disable_web_page_preview=True,
+        ),
+        disable_web_page_preview=True,
     )
 
 
