@@ -14,7 +14,7 @@ from config import (
 
     ALIVE_NAME,
 
-    BOT_NAME,
+    
 
     BOT_USERNAME,
 
