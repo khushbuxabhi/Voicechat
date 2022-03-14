@@ -20,18 +20,11 @@ from config import (
 
     GROUP_SUPPORT,
 
-    OWNER_NAME,
+    OWNER_USERNAME,
 
     UPDATES_CHANNEL,
 
-    REPO_OWNER,
-
-
-
-    MY_SERVER,
-
-    BOT_UPDATE,
-
+    
 )
 
 from asadmodules import __version__
