@@ -5,6 +5,48 @@ from driver.filters import command
 from config import BOT_NAME as bn, BOT_USERNAME, SUPPORT_GROUP, OWNER_USERNAME
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from program import __version__, LOGS
+from pytgcalls import (__version__ as pytover)
+
+from driver.filters import command
+from driver.core import bot, me_bot, me_user
+from driver.database.dbusers import add_served_user
+from driver.database.dbchat import add_served_chat, is_served_chat
+from driver.database.dblockchat import blacklisted_chats
+from driver.database.dbpunish import is_gbanned_user
+from driver.decorators import check_blacklist
+
+from pyrogram import Client, filters, __version__ as pyrover
+from pyrogram.errors import FloodWait, ChatAdminRequired
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, ChatJoinRequest
+
+__major__ = 0
+__minor__ = 2
+__micro__ = 1
+
+__python_version__ = f"{version_info[0]}.{version_info[1]}.{version_info[2]}"
+
+
+START_TIME = datetime.utcnow()
+START_TIME_ISO = START_TIME.replace(microsecond=0).isoformat()
+TIME_DURATION_UNITS = (
+    ("week", 60 * 60 * 24 * 7),
+    ("day", 60 * 60 * 24),
+    ("hour", 60 * 60),
+    ("min", 60),
+    ("sec", 1),
+)
+
+
+async def _human_time_duration(seconds):
+    if seconds == 0:
+        return "inf"
+    parts = []
+    for unit, div in TIME_DURATION_UNITS:
+        amount, seconds = divmod(int(seconds), div)
+        if amount > 0:
+            parts.append("{} {}{}".format(amount, unit, "" if amount == 1 else "s"))
+    return ", ".join(parts)
 
 
 @Client.on_message(command("start") & filters.private & ~filters.group & ~filters.edited)
