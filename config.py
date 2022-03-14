@@ -8,6 +8,8 @@ load_dotenv()
 API_ID = int(getenv("API_ID"))
 API_HASH = getenv("API_HASH")
 BOT_TOKEN = getenv("BOT_TOKEN")
+BOT_NAME = getenv("BOT_NAME")
+BOT_USERNAME = getenv("BOT_USERNAME")
 SESSION_NAME = getenv("SESSION_NAME", "session")
 
 # mandatory vars
@@ -18,6 +20,7 @@ UPSTREAM_REPO = getenv("UPSTREAM_REPO", "https://github.com/khushbuxabhi/video-s
 UPSTREAM_BRANCH = getenv("UPSTREM_BRANCH", "main")
 DURATION_LIMIT = int(getenv("DURATION_LIMIT", "900"))
 GROUP_SUPPORT = getenv("GROUP_SUPPORT", "AlishaSupport")
+SUPPORT_GROUP = getenv("SUPPORT_GROUP", "Terayaarhoomai")
 UPDATES_CHANNEL = getenv("UPDATES_CHANNEL", "Pubglovers_Shayri_lovers")
 
 # database, decorators, handlers mandatory vars
